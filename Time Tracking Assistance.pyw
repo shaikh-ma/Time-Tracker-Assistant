@@ -1,6 +1,6 @@
 """
 
-Assistant app for Time Tracking for daily tasks.
+Assistant app for Time Tracking & billing the time for tasks or jobs.
 
 """
 
@@ -15,21 +15,27 @@ if version_info.major < 3:
 else:
     import tkinter as tk
     from tkinter import messagebox as msg
+
 from datetime import date, datetime, time
+
+
+
 
 # The time tracking file
 
 with open('Log_file.csv','a',newline='') as log_file:
     header =['Date','Task','Start Time','End Time', 'Total Time' ]
     writer = csv.DictWriter(log_file, fieldnames=header)
-    d = {}     
+    d = {}
+    d['Date'] = datetime.now().today()
     writer.writeheader()
      
 
 def update_log_file(data={}):
-    d['Date'] = datetime.now().today()
     d.update(data)
     return d
+
+
 ##    with open('Log_file.csv','a') as log_file:
 ##        reader = csv.DictReader(log_file, fieldnames=['Date','Task','Start Time','End Time', 'Total Time'])
 ##        #previous_data = [line for line in reader]
@@ -61,6 +67,7 @@ def total_time(time_list):
     # total = "{h_diff}:{m_diff}:{s_diff}:{ms_diff}".format(h_diff=h_diff, m_diff=m_diff, s_diff=s_diff,ms_diff=ms_diff)
 
     total = "{h_diff}:{m_diff}:{s_diff}".format(h_diff=h_diff, m_diff=m_diff, s_diff=s_diff)
+    total = total.replace(':', ':')
     data = {'Total Time': str(total)}
     update_log_file(data)
     print("Total: ", total)
@@ -84,6 +91,7 @@ def save_start_time():
     update_log_file(data)
     data = {'Start Time': str(start)}
     update_log_file(data)
+    
     return
 
 def save_end_time():
@@ -93,7 +101,7 @@ def save_end_time():
     end = datetime.now().time()
     print('end : ',end)
     time_list.append(end)
-    if len(time_list) > 0:total_time(time_list)
+    if len(time_list) > 0: total_time(time_list)
     data = {'End Time': str(end)}
     update_log_file(data)
     return
@@ -109,10 +117,12 @@ def save_changes():
     if open_file:
         startfile('Log_file.csv')
 
+def clear():
+    task_name.delete(0, tk.END)
 
 root = tk.Tk()
 root.title('Time Tracking assistance')
-root.geometry("250x250")
+root.geometry("350x250")
 
 task = tk.Label(root, text="Task Name")
 task.grid(row=1, column=3)
@@ -129,5 +139,27 @@ end_time.grid(row=4, column=3, padx=10, pady=10)
 
 save_time = tk.Button(root, text="Save", command=save_changes)
 save_time.grid(row=5, column=2, padx=10, pady=10)
+
+clear_text = tk.Button(root, text="Clear Text", command=clear)
+clear_text.grid(row=2, column=4, padx=10, pady=10)
+
+##
+##recurring_tasks = ['t1', 't2', 't3']
+##
+##max_row = 5
+##max_col = 3
+
+##def update_label(label):
+##    print(label)
+##    task_name.insert(0, label)
+##    return
+##
+##
+##for ind, task_text in enumerate(recurring_tasks):
+##    #print(task_text)
+##    #tk.Button(root, text=task_text, command=update_label(task_text)).grid(row=max_row + 1, column=max_col + ind)
+##    tk.Radiobutton(root, text=task_text, value=0).grid(row=max_row + 1 + ind, column=1)
+##    
+##
 
 root.mainloop()
